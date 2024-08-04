@@ -78,6 +78,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation (libs.constraintlayout.compose)
+    implementation (libs.androidx.media3.exoplayer)
+    implementation (libs.androidx.media3.ui)
+    implementation (libs.androidx.media3.common)
+    implementation(libs.androidx.media3.exoplayer.dash)
+
 
 }
 
