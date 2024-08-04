@@ -2,13 +2,13 @@
 
 An advanced video player application built using Jetpack Compose. This project leverages modern Android development practices and libraries to provide a seamless and efficient video playback experience.
 
-Key Features
+```Key Features```
 
-.Jetpack Compose: Modern UI toolkit for building native Android UIs.
-.Dependency Injection with Dagger Hilt: Simplifies dependency injection and ensures a scalable architecture.
-.ExoPlayer Integration: High-performance media player for handling video playback.
-.MVVM Architecture: Ensures a clean separation of concerns and enhances testability.
-.Runtime Permissions: Manages permissions dynamically to ensure smooth user experience.
+. Jetpack Compose: Modern UI toolkit for building native Android UIs.
+. Dependency Injection with Dagger Hilt: Simplifies dependency injection and ensures a scalable architecture.
+. ExoPlayer Integration: High-performance media player for handling video playback.
+. MVVM Architecture: Ensures a clean separation of concerns and enhances testability.
+. Runtime Permissions: Manages permissions dynamically to ensure smooth user experience.
 
 ```Tech Stack```
 
