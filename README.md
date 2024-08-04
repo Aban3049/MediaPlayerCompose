@@ -12,13 +12,13 @@ An advanced video player application built using Jetpack Compose. This project l
 
 ## Tech Stack
 
-Kotlin: Primary programming language.
-Jetpack Compose: For building the UI.
-Dagger Hilt: For dependency injection.
-ExoPlayer: For video playback.
-ViewModel: For managing UI-related data in a lifecycle-conscious way.
-LiveData: For data observation.
-Coroutines: For asynchronous programming.
+* Kotlin: Primary programming language.
+* Jetpack Compose: For building the UI.
+* Dagger Hilt: For dependency injection.
+* ExoPlayer: For video playback.
+* ViewModel: For managing UI-related data in a lifecycle-conscious way.
+* LiveData: For data observation.
+* Coroutines: For asynchronous programming.
 
 ### Getting Started
 
