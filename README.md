@@ -9,7 +9,7 @@ Key Features
 .MVVM Architecture: Ensures a clean separation of concerns and enhances testability.
 .Runtime Permissions: Manages permissions dynamically to ensure smooth user experience.
 
-Tech Stack
+```Tech Stack```
 
 Kotlin: Primary programming language.
 Jetpack Compose: For building the UI.
@@ -23,7 +23,7 @@ Getting Started
 
 Clone the repository:
 
-    git clone https://github.com/yourusername/your-repo-name.git
+    git clone https://github.com/Aban3049/MediaPlayerCompose
 
  Open the project in Android Studio.
  Build and run the project on an Android device or emulator.
