@@ -1,5 +1,6 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Pager(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
@@ -69,6 +71,8 @@ fun Pager(navHostController: NavHostController) {
                 .fillMaxWidth()
                 .weight(1f)
         ) { page ->
+
+
             when (HomeTabs.entries[page]) {
                 HomeTabs.Folder -> {
                     Folders(navHostController)
@@ -78,6 +82,8 @@ fun Pager(navHostController: NavHostController) {
                     Videos(navHostController)
                 }
             }
+
+
         }
     }
 }
