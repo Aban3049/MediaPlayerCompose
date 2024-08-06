@@ -1,10 +1,17 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,9 +24,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
@@ -56,7 +67,7 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 10.dp)
-                        .clickable{
+                        .clickable {
                             navHostController.navigate(Routes.PLayerScreen(videoUri = it.path))
                         },
                     shape = RoundedCornerShape(10.dp)
@@ -64,7 +75,22 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
 
                     ConstraintLayout(modifier = Modifier.padding(8.dp)) {
 
-                        val (title, duration, size) = createRefs()
+                        val (title, duration, size, videoIcon) = createRefs()
+
+
+
+                        Image(
+                            bitmap = getThumbnailOfVideo(
+                                it.path.toUri(),
+                                context = LocalContext.current
+                            )!!.asImageBitmap(), contentDescription = null,
+                            modifier = Modifier.constrainAs(videoIcon){
+                                top.linkTo(parent.top)
+                                start.linkTo(parent.start)
+                            }.height(100.dp)
+                                .width(120.dp),
+                            contentScale = ContentScale.Crop
+                        )
 
                         Text(
                             text = it.title ?: "Unknown Title",
@@ -74,8 +100,9 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .constrainAs(title) {
-                                    top.linkTo(parent.top)
-                                    start.linkTo(parent.start)
+                                    bottom.linkTo(videoIcon.bottom)
+                                   top.linkTo(videoIcon.top)
+                                    start.linkTo(videoIcon.end, margin = 8.dp)
                                 })
 
                         Text(
@@ -83,12 +110,12 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.constrainAs(duration) {
                                 top.linkTo(title.bottom)
-                                start.linkTo(parent.start)
+                                start.linkTo(videoIcon.end, margin = 8.dp)
                             }
                         )
 
                         Text(
-                            text = it.size!!.toMegabytes().toString(),
+                            text = it.size!!.toMegabytes().toString()+"MB",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.constrainAs(size) {
                                 start.linkTo(duration.end, margin = 8.dp)
@@ -102,6 +129,15 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
 
         }
     }
+
+
+}
+
+fun getThumbnailOfVideo(uri: Uri, context: Context): Bitmap? {
+
+    val retriever = MediaMetadataRetriever()
+    retriever.setDataSource(context, uri)
+    return retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
 
 
 }
