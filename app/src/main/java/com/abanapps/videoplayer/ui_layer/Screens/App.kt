@@ -2,7 +2,10 @@ package com.abanapps.videoplayer.ui_layer.Screens
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +31,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import android.provider.Settings
+import androidx.activity.result.ActivityResultLauncher
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -37,7 +42,6 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
     val context = LocalContext.current
 
     lateinit var mediaPermissionState: PermissionState
-
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         mediaPermissionState =
@@ -59,6 +63,18 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
         }
     }
 
+    val writeSettingsPermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.System.canWrite(context)) {
+                    // Permission granted
+                    Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Permission Required for App to function properly", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!mediaPermissionState.status.isGranted) {
@@ -73,6 +89,7 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
                 permissionLauncher2.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
+        checkAndRequestWriteSettingsPermission(context,writeSettingsPermissionLauncher)
     }
 
     val state = viewModel.showUi.collectAsState()
@@ -99,6 +116,26 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
     }
 
 }
+
+fun checkAndRequestWriteSettingsPermission(
+    context: Context,
+    launcher: ActivityResultLauncher<Intent>
+) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_SETTINGS
+        ) != PermissionChecker.PERMISSION_GRANTED
+    ) {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+        } else {
+            Intent(Settings.ACTION_SETTINGS)
+        }
+        intent.data = Uri.parse("package:" + context.packageName)
+        launcher.launch(intent)
+    }
+}
+
 
 private fun checkPermissions(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

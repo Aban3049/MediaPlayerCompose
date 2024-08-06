@@ -84,10 +84,12 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                                 it.path.toUri(),
                                 context = LocalContext.current
                             )!!.asImageBitmap(), contentDescription = null,
-                            modifier = Modifier.constrainAs(videoIcon){
-                                top.linkTo(parent.top)
-                                start.linkTo(parent.start)
-                            }.height(100.dp)
+                            modifier = Modifier
+                                .constrainAs(videoIcon) {
+                                    top.linkTo(parent.top)
+                                    start.linkTo(parent.start)
+                                }
+                                .height(100.dp)
                                 .width(120.dp),
                             contentScale = ContentScale.Crop
                         )
@@ -101,7 +103,8 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                                 .fillMaxWidth()
                                 .constrainAs(title) {
                                     bottom.linkTo(videoIcon.bottom)
-                                   top.linkTo(videoIcon.top)
+                                    top.linkTo(videoIcon.top)
+                                    end.linkTo(parent.end,8.dp)
                                     start.linkTo(videoIcon.end, margin = 8.dp)
                                 })
 
@@ -115,11 +118,12 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                         )
 
                         Text(
-                            text = it.size!!.toMegabytes().toString()+"MB",
+                            text = it.size!!.toMegabytes().toString() + "MB",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.constrainAs(size) {
                                 start.linkTo(duration.end, margin = 8.dp)
                                 top.linkTo(title.bottom)
+                                end.linkTo(parent.end, margin = 8.dp)
                             })
 
                     }
