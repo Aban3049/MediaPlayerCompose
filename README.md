@@ -2,6 +2,8 @@
 
 An advanced video player application built using Jetpack Compose. This project leverages modern Android development practices and libraries to provide a seamless and efficient video playback experience.
 
+![mediaplayerhome](https://github.com/user-attachments/assets/785dc86b-16a1-40a5-95f1-24f2b0ef12e3)
+
 ## Key Features
 
 * Jetpack Compose: Modern UI toolkit for building native Android UIs
