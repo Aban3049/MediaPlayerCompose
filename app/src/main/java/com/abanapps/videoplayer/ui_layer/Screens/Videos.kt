@@ -79,13 +79,6 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
         ) {
             items(allVideos.value) {
 
-//                val painter = rememberAsyncImagePainter(
-//                    model = ImageRequest.Builder(context = context)
-//                        .data(it.path.toUri())
-//                        .build(),
-//                    imageLoader = imageLoader
-//                )
-
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -117,20 +110,6 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                             imageLoader = imageLoader
                         )
 
-//                        Image(
-//                            bitmap = getThumbnailOfVideo(
-//                                it.path.toUri(),
-//                                context = LocalContext.current
-//                            )!!.asImageBitmap(), contentDescription = null,
-//                            modifier = Modifier
-//                                .constrainAs(videoIcon) {
-//                                    top.linkTo(parent.top)
-//                                    start.linkTo(parent.start)
-//                                }
-//                                .height(100.dp)
-//                                .width(120.dp),
-//                            contentScale = ContentScale.Crop
-//                        )
 
                         Text(
                             text = it.title ?: "Unknown Title",
