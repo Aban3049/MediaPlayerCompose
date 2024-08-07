@@ -5,5 +5,6 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun HomeScreen(navHostController: NavHostController) {
-    Pager(navHostController)
+//    Pager(navHostController)
+    MainHomeScreen(navController = navHostController)
 }

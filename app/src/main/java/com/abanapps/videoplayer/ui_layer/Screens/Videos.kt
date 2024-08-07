@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,6 +31,13 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.Decoder
+import coil.decode.VideoFrameDecoder
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
@@ -43,6 +48,17 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
     LaunchedEffect(true) {
         viewModel.loadAllVideos()
     }
+
+    val context = LocalContext.current
+
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            add(VideoFrameDecoder.Factory())
+        }
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .build()
+
 
     val allVideos = viewModel.videoList.collectAsState()
     val isLoading = viewModel.showUi.collectAsState()
@@ -63,6 +79,13 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
         ) {
             items(allVideos.value) {
 
+//                val painter = rememberAsyncImagePainter(
+//                    model = ImageRequest.Builder(context = context)
+//                        .data(it.path.toUri())
+//                        .build(),
+//                    imageLoader = imageLoader
+//                )
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -78,21 +101,36 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                         val (title, duration, size, videoIcon) = createRefs()
 
 
-
-                        Image(
-                            bitmap = getThumbnailOfVideo(
-                                it.path.toUri(),
-                                context = LocalContext.current
-                            )!!.asImageBitmap(), contentDescription = null,
-                            modifier = Modifier
+                        AsyncImage(
+                            model = ImageRequest.Builder(context = context)
+                                .data(it.path.toUri())
+                                .build(),
+                            contentDescription = null,
+                            modifier =  Modifier
                                 .constrainAs(videoIcon) {
                                     top.linkTo(parent.top)
                                     start.linkTo(parent.start)
                                 }
                                 .height(100.dp)
                                 .width(120.dp),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            imageLoader = imageLoader
                         )
+
+//                        Image(
+//                            bitmap = getThumbnailOfVideo(
+//                                it.path.toUri(),
+//                                context = LocalContext.current
+//                            )!!.asImageBitmap(), contentDescription = null,
+//                            modifier = Modifier
+//                                .constrainAs(videoIcon) {
+//                                    top.linkTo(parent.top)
+//                                    start.linkTo(parent.start)
+//                                }
+//                                .height(100.dp)
+//                                .width(120.dp),
+//                            contentScale = ContentScale.Crop
+//                        )
 
                         Text(
                             text = it.title ?: "Unknown Title",
@@ -104,7 +142,6 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                                 .constrainAs(title) {
                                     bottom.linkTo(videoIcon.bottom)
                                     top.linkTo(videoIcon.top)
-                                    end.linkTo(parent.end,8.dp)
                                     start.linkTo(videoIcon.end, margin = 8.dp)
                                 })
 
@@ -137,14 +174,7 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
 
 }
 
-fun getThumbnailOfVideo(uri: Uri, context: Context): Bitmap? {
 
-    val retriever = MediaMetadataRetriever()
-    retriever.setDataSource(context, uri)
-    return retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-
-
-}
 
 fun Long.toMegabytes(): Double = this / (1024.0 * 1024.0)
 fun Long.toKilobytes(): Double = this / 1024.0
