@@ -1,9 +1,6 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.media.MediaMetadataRetriever
-import android.net.Uri
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,8 +30,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.Decoder
 import coil.decode.VideoFrameDecoder
 import coil.request.CachePolicy
 import coil.request.ImageRequest
