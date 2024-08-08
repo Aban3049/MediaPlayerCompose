@@ -3,6 +3,7 @@ package com.abanapps.videoplayer.data_layer.Repo
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
+import android.media.browse.MediaBrowser.MediaItem
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -25,7 +26,8 @@ class VideoAppRepoImpl:VideoAppRepo {
             MediaStore.Video.Media.ARTIST,
             MediaStore.Video.Media.DATE_ADDED,
             MediaStore.Video.Media.SIZE,
-            MediaStore.Video.Media.TITLE
+            MediaStore.Video.Media.TITLE,
+            MediaStore.Video.Media.MIME_TYPE
         )
 
         val memoryCursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -48,7 +50,8 @@ class VideoAppRepoImpl:VideoAppRepo {
                     artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.ARTIST)),
                     dateAdded = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)),
                     size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)),
-                    title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE))
+                    title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE)),
+                    mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.MIME_TYPE))
                 )
                 allVideo.add(videoFile)
             }

@@ -9,4 +9,5 @@ data class VideoFile(
     val dateAdded: String?,
     val size: Long?,
     val title: String?,
+    val mimeType: String?
 )
