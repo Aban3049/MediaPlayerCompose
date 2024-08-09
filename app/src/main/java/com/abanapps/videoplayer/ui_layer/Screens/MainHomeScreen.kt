@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
@@ -201,7 +202,10 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(end = 5.dp),
+                            .padding(end = 5.dp)
+                            .clickable {
+                                navController.navigate(Routes.MusicScreen)
+                            },
                         colors = CardDefaults.cardColors(Color(0xFF1f2130)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
@@ -645,6 +649,49 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
     }
 
 
+}
+
+@Composable
+fun FileItem(imageVector: ImageVector,pathName:String,filesCount:Int){
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.file),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(randomColor()),
+            modifier = Modifier.size(34.dp)
+        )
+
+        Column(
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            Text(
+                text = "Camera",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontSize = 18.sp
+            )
+
+            Text(
+                text = "80 File",
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                color = Color(0xFF393b4a),
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Image(
+            imageVector = Icons.Default.MoreHoriz,
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
+    }
 }
 
 fun randomColor(): Color {

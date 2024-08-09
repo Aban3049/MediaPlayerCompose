@@ -56,6 +56,7 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
+import com.abanapps.videoplayer.ui_layer.Utils.TopAppBar
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
 
@@ -83,40 +84,7 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Videos",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "backBtn",
-                        tint = Color.White,
-                        modifier = Modifier.clickable {
-                            navHostController.popBackStack()
-                        }
-                    )
-                },
-                actions = {
-                    Icon(
-                        imageVector = Icons.Default.MoreHoriz,
-                        contentDescription = "moreBtn",
-                        tint = Color.White,
-                        modifier = Modifier.clickable {
-
-                        }
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                modifier = Modifier
-                    .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 2.dp)
-                    .height(50.dp)
-            )
+           TopAppBar(title = "Videos", navHostController = navHostController)
         }
     ) {
         if (isLoading.value) {
@@ -269,156 +237,20 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
 
                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                Spacer(modifier = Modifier
-                                    .height(2.dp)
-                                    .fillMaxWidth()
-                                    .background(
-                                        Color(0xFF1b1d2c)
-                                    ))
+                                Spacer(
+                                    modifier = Modifier
+                                        .height(2.dp)
+                                        .fillMaxWidth()
+                                        .background(
+                                            Color(0xFF1b1d2c)
+                                        )
+                                )
 
-                            
+
                             }
                         }
                     }
 
-
-
-//                    LazyColumn(
-//                        modifier = Modifier
-//                            .fillMaxSize()
-//                            .padding(15.dp)
-//                    ) {
-//                        items(allVideos.value) { video ->
-//                            Column(
-//                                modifier = Modifier
-//                                    .fillMaxWidth()
-//                                    .padding(vertical = 8.dp)
-//                                    .clickable {
-//                                        navHostController.navigate(Routes.PLayerScreen(videoUri = video.path))
-//                                    }
-//                            ) {
-//                                Row(
-//                                    modifier = Modifier.fillMaxWidth()
-//                                ) {
-//                                    Card(
-//                                        modifier = Modifier
-//                                            .height(85.dp)
-//                                            .width(120.dp),
-//                                        colors = CardDefaults.cardColors(Color.Transparent),
-//                                        shape = RoundedCornerShape(6.dp)
-//                                    ) {
-//                                        AsyncImage(
-//                                            model = ImageRequest.Builder(context = context)
-//                                                .data(video.path.toUri())
-//                                                .build(),
-//                                            contentDescription = null,
-//                                            modifier = Modifier
-//                                                .height(85.dp)
-//                                                .width(120.dp),
-//                                            contentScale = ContentScale.Crop,
-//                                            imageLoader = imageLoader
-//                                        )
-//                                    }
-//
-//
-//                                    Column(
-//                                        modifier = Modifier
-//                                            .padding(start = 12.dp)
-//                                    ) {
-//                                        Text(
-//                                            text = video.title ?: "Unknown Title",
-//                                            style = MaterialTheme.typography.titleMedium,
-//                                            maxLines = 2,
-//                                            overflow = TextOverflow.Ellipsis,
-//                                            color = Color.White,
-//                                            modifier = Modifier.fillMaxWidth()
-//                                        )
-//
-//                                        Text(
-//                                            text = getFolderName(video.path) ?: "Unknown Folder",
-//                                            style = MaterialTheme.typography.bodySmall,
-//                                            color = Color(0xFF393b4a),
-//                                            modifier = Modifier,
-//                                            fontSize = 14.sp
-//                                        )
-//
-//                                        Row {
-//
-//                                            Card(
-//                                                colors = CardDefaults.cardColors(Color(0xFF3e4050)),
-//                                                modifier = Modifier.padding(end = 5.dp),
-//                                                shape = RoundedCornerShape(6.dp)
-//                                            ) {
-//                                                Row(
-//                                                    modifier = Modifier
-//                                                        .background(Color(0xFF212236))
-//                                                        .padding(2.dp),
-//                                                    verticalAlignment = Alignment.CenterVertically,
-//                                                    horizontalArrangement = Arrangement.Center
-//                                                ) {
-//                                                    Image(
-//                                                        painter = painterResource(id = R.drawable.playblack),
-//                                                        contentDescription = null,
-//                                                        modifier = Modifier.size(18.dp),
-//                                                        colorFilter = ColorFilter.tint(Color.White)
-//                                                    )
-//                                                    Text(
-//                                                        text = video.duration!!.toDurationString()
-//                                                            ?: "Unknown Duration",
-//                                                        color = Color.White,
-//                                                        fontSize = 11.sp
-//                                                    )
-//                                                }
-//
-//                                            }
-//
-//                                            Card(
-//                                                colors = CardDefaults.cardColors(Color(0xFF3e4050)),
-//                                                modifier = Modifier.padding(start = 5.dp),
-//                                                shape = RoundedCornerShape(6.dp)
-//                                            ) {
-//                                                Row(
-//                                                    modifier = Modifier
-//                                                        .background(Color(0xFF212236))
-//                                                        .padding(2.dp),
-//                                                    verticalAlignment = Alignment.CenterVertically,
-//                                                    horizontalArrangement = Arrangement.Center
-//                                                ) {
-//                                                    Image(
-//                                                        painter = painterResource(id = R.drawable.play),
-//                                                        contentDescription = null,
-//                                                        modifier = Modifier.size(18.dp),
-//                                                    )
-//                                                    Text(text = " ")
-//                                                    Text(
-//                                                        text = getFileExtensionFromMimeType(video.mimeType!!)
-//                                                            ?: "Unknown Format"
-//                                                            ?: "Unknown Duration",
-//                                                        color = Color.White,
-//                                                        fontSize = 11.sp
-//                                                    )
-//                                                }
-//
-//                                            }
-//                                        }
-//
-//
-//                                    }
-//                                }
-//
-//
-//                            }
-//
-//                            Spacer(
-//                                modifier = Modifier
-//                                    .height(1.dp)
-//                                    .fillMaxWidth()
-//                                    .padding(top = 5.dp, bottom = 5.dp)
-//                                    .background(Color(0xFF343646))
-//                            )
-//
-//                        }
-//                    }
                 }
             }
         }
