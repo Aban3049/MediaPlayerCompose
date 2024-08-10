@@ -82,10 +82,10 @@ dependencies {
     implementation (libs.androidx.media3.ui)
     implementation (libs.androidx.media3.common)
     implementation(libs.androidx.media3.exoplayer.dash)
-    implementation("io.coil-kt:coil:2.7.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("io.coil-kt:coil-video:2.7.0")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.video)
+    implementation (libs.androidx.material.icons.extended)
 
 
 }

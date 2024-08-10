@@ -3,6 +3,7 @@ package com.abanapps.videoplayer.ui_layer.Screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,17 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,28 +29,36 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
+import com.abanapps.videoplayer.ui_layer.Utils.FileItem
+import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 import kotlin.random.Random
 
+//0xFF191722 body color
+//0xFF1f2130 card color
+//0xFF393b4a text color
+//(0xFF5c5d6f tint more icon color
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
-fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
+fun MainHomeScreen(navController: NavHostController, viewModel: PlayerViewModel = hiltViewModel()) {
+
 
     Scaffold(
         topBar = {
@@ -62,13 +70,16 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 5.dp)
                 )
-            }, navigationIcon = {
-                Image(
-                    painter = painterResource(id = R.drawable.play),
-                    contentDescription = null,
-                    modifier = Modifier.size(34.dp)
-                )
-            }, modifier = Modifier.padding(start = 12.dp, end = 12.dp),colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+            },
+                navigationIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.play),
+                        contentDescription = null,
+                        modifier = Modifier.size(34.dp)
+                    )
+                },
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 actions = {
                     Image(
                         imageVector = Icons.Default.Widgets,
@@ -84,7 +95,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF191722))
+                .background(Color(0xFF000000))
                 .padding(innerPadding)
         ) {
 
@@ -109,7 +120,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 5.dp),
-                        colors = CardDefaults.cardColors(Color(0xFF1f2130)),
+                        colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
                     ) {
@@ -139,7 +150,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
                             Text(
                                 text = "121 Files",
-                                color = Color(0xFF393b4a),
+                                color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
                             )
@@ -151,7 +162,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 5.dp),
-                        colors = CardDefaults.cardColors(Color(0xFF1f2130)),
+                        colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
                     ) {
@@ -182,7 +193,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
                             Text(
                                 text = "30 Files",
-                                color = Color(0xFF393b4a),
+                                color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
                             )
@@ -206,7 +217,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                             .clickable {
                                 navController.navigate(Routes.MusicScreen)
                             },
-                        colors = CardDefaults.cardColors(Color(0xFF1f2130)),
+                        colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
                     ) {
@@ -236,7 +247,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
                             Text(
                                 text = "20 Files",
-                                color = Color(0xFF393b4a),
+                                color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
                             )
@@ -251,7 +262,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
                             .clickable {
                                 navController.navigate(Routes.VideosScreen)
                             },
-                        colors = CardDefaults.cardColors(Color(0xFF1f2130)),
+                        colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
                     ) {
@@ -282,7 +293,7 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
                             Text(
                                 text = "80 Files",
-                                color = Color(0xFF393b4a),
+                                color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
                             )
@@ -309,339 +320,23 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
                     Card(
                         Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(Color(0xFF1f2130)),
+                        colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)
                     ) {
 
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Camera",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "80 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Download",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "20 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Facebook",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "30 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Inshot",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "10 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Instagram",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "25 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.file),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(randomColor()),
-                                    modifier = Modifier.size(34.dp)
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = "Snapchat",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        fontSize = 18.sp
-                                    )
-
-                                    Text(
-                                        text = "60 File",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF393b4a),
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.weight(1f))
-
-                                Image(
-                                    imageVector = Icons.Default.MoreHoriz,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                )
-                            }
-                        }
-
-
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color.Black)
-                        )
-
+                        FileItem("Downloads", "20 Files")
+                        FileItem("Camera", "70 Files")
+                        FileItem("SnapChat", "30 Files")
+                        FileItem("Instagram", "0 Files")
+                        FileItem("DCIM", "70 Files")
+                        FileItem("Video", "0 Files")
 
                     }
 
+
                 }
+
 
             }
 
@@ -651,48 +346,6 @@ fun MainHomeScreen(navController: NavHostController = rememberNavController()) {
 
 }
 
-@Composable
-fun FileItem(imageVector: ImageVector,pathName:String,filesCount:Int){
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.file),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(randomColor()),
-            modifier = Modifier.size(34.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .padding(start = 12.dp)
-                .align(Alignment.CenterVertically)
-        ) {
-            Text(
-                text = "Camera",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                fontSize = 18.sp
-            )
-
-            Text(
-                text = "80 File",
-                style = MaterialTheme.typography.bodySmall,
-                fontSize = 12.sp,
-                color = Color(0xFF393b4a),
-            )
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Image(
-            imageVector = Icons.Default.MoreHoriz,
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(Color(0xFF5c5d6f)),
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-    }
-}
 
 fun randomColor(): Color {
     val random = Random.nextInt(Colors.entries.size)

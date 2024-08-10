@@ -28,14 +28,15 @@ class VideoAppRepoImpl : VideoAppRepo {
             MediaStore.Video.Media.MIME_TYPE
         )
 
+        val sortOrder = "${MediaStore.Video.VideoColumns.DISPLAY_NAME} ASC"
         val memoryCursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            application.contentResolver.query(uri, projection, null, null, null)
+            application.contentResolver.query(uri, projection, null, null, sortOrder)
         } else {
             val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
             val selectionArgs = arrayOf("video/%")
             val uri = MediaStore.Files.getContentUri("external")
-            application.contentResolver.query(uri, projection, selection, selectionArgs, null)
+            application.contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
         }
 
         memoryCursor?.use { cursor ->
@@ -76,14 +77,21 @@ class VideoAppRepoImpl : VideoAppRepo {
             MediaStore.Video.Media.TITLE,
         )
 
+        val sortOrder = "${MediaStore.Audio.AudioColumns.DISPLAY_NAME} ASC"
+
         val memoryCursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            application.contentResolver.query(uri, projection, null, null, null)
+            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            application.contentResolver.query(uri, projection, null, null, sortOrder)
         } else {
-            val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
-            val selectionArgs = arrayOf("audio/%")
-            val uri = MediaStore.Files.getContentUri("external")
-            application.contentResolver.query(uri, projection, selection, selectionArgs, null)
+//            val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
+//            val selectionArgs = arrayOf("audio/%")
+//            val uri = MediaStore.Files.getContentUri("external")
+//            val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
+//            val selectionArgs = arrayOf("audio/%")
+            val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? AND ${MediaStore.Audio.Media.DURATION} >= ?"
+            val selectionArgs = arrayOf("audio/%", "15000")
+            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            application.contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
         }
         memoryCursor?.use { cursor ->
             while (cursor.moveToNext()) {
