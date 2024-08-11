@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.abanapps.videoplayer.ui_layer.Screens.Folders
 import com.abanapps.videoplayer.ui_layer.Screens.HomeScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MainHomeScreen
+import com.abanapps.videoplayer.ui_layer.Screens.MusicPlayerScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MusicScreen
 import com.abanapps.videoplayer.ui_layer.Screens.VideoView
 import com.abanapps.videoplayer.ui_layer.Screens.Videos
@@ -35,6 +36,12 @@ fun AppNavigation() {
         composable<Routes.PLayerScreen> {
             val videoUrl: Routes.PLayerScreen = it.toRoute<Routes.PLayerScreen>()
             VideoView(videoUri = videoUrl.videoUri)
+        }
+
+        composable<Routes.MusicPlayerScreen> {
+            val musicUrl: Routes.MusicPlayerScreen = it.toRoute<Routes.MusicPlayerScreen>()
+            val title: Routes.MusicPlayerScreen = it.toRoute<Routes.MusicPlayerScreen>()
+            MusicPlayerScreen(uri = musicUrl.musicUri,title = title.title ?: "Unknown")
         }
 
         composable<Routes.MainHomeScreen> {
@@ -69,5 +76,8 @@ sealed class Routes() {
 
     @Serializable
     data object MusicScreen
+
+    @Serializable
+    data class MusicPlayerScreen(val musicUri: String,val title:String)
 
 }

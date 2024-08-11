@@ -24,6 +24,11 @@ class PlayerViewModel @Inject constructor(
     val musicList = MutableStateFlow(emptyList<AudioFile>())
     private val isLoading = MutableStateFlow(false)
 
+    init {
+        loadAllVideos()
+        loadAllMusic()
+    }
+
     fun loadAllVideos() {
         isLoading.value = true
         viewModelScope.launch {

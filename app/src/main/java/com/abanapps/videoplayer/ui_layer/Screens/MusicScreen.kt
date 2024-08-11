@@ -1,6 +1,7 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
+import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -242,6 +244,9 @@ fun MusicScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 5.dp)
+                                    .clickable {
+                                        navHostController.navigate(Routes.MusicPlayerScreen(musicUri = it.path, title = it.title!!))
+                                    }
                             ) {
 
                                 Row(
@@ -280,7 +285,7 @@ fun MusicScreen(
                                         fontSize = 16.sp,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(start = 12.dp, end = 12.dp)
+                                        modifier = Modifier.padding(start = 12.dp, end = 12.dp).weight(1f)
                                     )
 
                                     Icon(
