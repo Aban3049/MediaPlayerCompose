@@ -86,7 +86,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation (libs.androidx.material.icons.extended)
-
+    implementation("androidx.media3:media3-session:1.4.0")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
 
 }
 

@@ -1,5 +1,7 @@
 package com.abanapps.videoplayer.ui_layer.Utils
 
+import android.content.Intent
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -129,5 +131,6 @@ fun FileItem(path:String="Camera",files:String="80 Files"){
             .background(Color.Black)
     )
 }
+
 
 //0xFF393b4a files color

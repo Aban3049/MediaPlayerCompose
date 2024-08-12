@@ -1,5 +1,7 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,24 +39,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
+import com.abanapps.videoplayer.data_layer.service.MusicService
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
@@ -64,6 +65,7 @@ fun MusicScreen(
     navHostController: NavHostController, viewModel: PlayerViewModel = hiltViewModel()
 ) {
 
+
     LaunchedEffect(true) {
         viewModel.loadAllMusic()
     }
@@ -71,6 +73,7 @@ fun MusicScreen(
     val allMusic = viewModel.musicList.collectAsState()
     val isLoading = viewModel.showUi.collectAsState()
 
+    val context = LocalContext.current
 
     Scaffold(
 
@@ -245,7 +248,22 @@ fun MusicScreen(
                                     .fillMaxWidth()
                                     .padding(bottom = 5.dp)
                                     .clickable {
-                                        navHostController.navigate(Routes.MusicPlayerScreen(musicUri = it.path, title = it.title!!))
+                                        val intent =
+                                            Intent(context, MusicService::class.java).apply {
+                                                action = "PLAY"
+                                                putExtra(
+                                                    "music_uri",
+                                                    Uri.parse(it.path)
+                                                )
+                                            }
+                                        context.startService(intent)
+
+                                        navHostController.navigate(
+                                            Routes.MusicPlayerScreen(
+                                                musicUri = it.path,
+                                                title = it.title!!
+                                            )
+                                        )
                                     }
                             ) {
 
@@ -285,7 +303,9 @@ fun MusicScreen(
                                         fontSize = 16.sp,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(start = 12.dp, end = 12.dp).weight(1f)
+                                        modifier = Modifier
+                                            .padding(start = 12.dp, end = 12.dp)
+                                            .weight(1f)
                                     )
 
                                     Icon(
