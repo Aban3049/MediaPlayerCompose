@@ -26,10 +26,10 @@ fun VideoView(videoUri: String) {
     var lifeCycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
     val context = LocalContext.current
 
-    val mediaItem = MediaItem.fromUri(videoUri)
+    val mediaItem2 = MediaItem.fromUri(videoUri)
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
-            setMediaItem(mediaItem)
+            setMediaItem(mediaItem2)
             prepare()
             playWhenReady = true
         }

@@ -20,13 +20,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -59,7 +56,6 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
-import com.abanapps.videoplayer.ui_layer.Utils.TopAppBar
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
 
@@ -267,7 +263,7 @@ fun Videos(navHostController: NavHostController, viewModel: PlayerViewModel = hi
                                                 horizontalArrangement = Arrangement.Center
                                             ) {
                                                 Image(
-                                                    painter = painterResource(id = R.drawable.play),
+                                                    painter = painterResource(id = R.drawable.playm),
                                                     contentDescription = null,
                                                     modifier = Modifier.size(18.dp),
                                                 )

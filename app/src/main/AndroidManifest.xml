@@ -12,6 +12,7 @@
         tools:ignore="SelectedPhotoAccess" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
     <application
         android:name=".BaseApplication"
@@ -36,7 +37,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".data_layer.service.MusicService">
+        <service android:name=".data_layer.service.MusicService"
+            android:foregroundServiceType="mediaPlayback">
 
         </service>
 

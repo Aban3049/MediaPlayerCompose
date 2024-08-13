@@ -51,7 +51,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
@@ -255,6 +254,7 @@ fun MusicScreen(
                                                     "music_uri",
                                                     Uri.parse(it.path)
                                                 )
+                                                putExtra("music_title", it.title)
                                             }
                                         context.startService(intent)
 

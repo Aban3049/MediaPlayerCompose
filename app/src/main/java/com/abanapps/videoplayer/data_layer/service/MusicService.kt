@@ -1,37 +1,45 @@
 package com.abanapps.videoplayer.data_layer.service
 
-import android.app.Application
 import android.app.Notification
-import android.app.Service
-import android.content.Intent
-import android.net.Uri
-import android.os.IBinder
-import androidx.compose.runtime.Composable
-import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import com.abanapps.videoplayer.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.Service
+import android.content.Intent
+import android.net.Uri
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import androidx.annotation.OptIn
+import androidx.compose.runtime.mutableStateOf
+import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
+import androidx.media.app.NotificationCompat.MediaStyle
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.abanapps.videoplayer.MainActivity
+import com.abanapps.videoplayer.R
+import com.abanapps.videoplayer.ui_layer.Screens.MusicServiceAction
 
 class MusicService : Service() {
 
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var mediaSession: MediaSession
     private val CHANNEL_ID = "music_channel"
+    private var currentTitle: String = "Unknown"
+    var isPlaying = mutableStateOf(false)
 
-    private val musicList = mutableListOf<Uri>() // Add your music list URIs here
-    private var currentIndex = 0
+    private var isLoopEnabled = false
+    private var isShuffleEnabled = false
+    private val binder = MusicServiceBinder()
+
+    inner class MusicServiceBinder : Binder() {
+        fun getService(): MusicService = this@MusicService
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -39,50 +47,54 @@ class MusicService : Service() {
         exoPlayer = ExoPlayer.Builder(this).build()
         createNotificationChannel()
 
-        // Set audio attributes
         val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
             .build()
         exoPlayer.setAudioAttributes(audioAttributes, true)
 
-        // Create MediaSession
-        mediaSession = MediaSession.Builder(this, exoPlayer)
-            .setSessionActivity(getPendingIntent("PLAY"))
-            .build()
+        mediaSession = MediaSession.Builder(this, exoPlayer).build()
 
-        // Listener for auto-play next song
         exoPlayer.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    playNextSong()
-                }
+            override fun onIsPlayingChanged(isPlaying1: Boolean) {
+                updateNotification()
+                isPlaying.value = isPlaying1
             }
         })
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            "PLAY" -> {
-                val uri = intent.getParcelableExtra<Uri>("music_uri")
-                if (uri != null) {
-                    playMusic(uri)
+            MusicServiceAction.PLAY.action -> {
+                val uri = intent.getStringExtra("music_uri")?.toUri()
+                uri?.let { playMusic(it) }
+            }
+
+            MusicServiceAction.PAUSE.action -> pauseMusic()
+            MusicServiceAction.SEEK.action -> {
+                val position = intent.getLongExtra("seek_position", 0L)
+                seekTo(position)
+            }
+
+            MusicServiceAction.LOOP.action -> {
+                exoPlayer.repeatMode = if (exoPlayer.repeatMode == Player.REPEAT_MODE_ONE) {
+                    Player.REPEAT_MODE_OFF
+                } else {
+                    Player.REPEAT_MODE_ONE
                 }
             }
-            "PAUSE" -> pauseMusic()
-            "BACKWARD" -> skipBackward()
-            "FORWARD" -> skipForward()
-            "NEXT" -> playNextSong()
-            "PREVIOUS" -> playPreviousSong()
-        }
 
-        val notification = createNotification()
-        startForeground(1, notification)
-        return START_STICKY
+            MusicServiceAction.SHUFFLE.action -> {
+                exoPlayer.shuffleModeEnabled = !exoPlayer.shuffleModeEnabled
+            }
+
+            MusicServiceAction.FORWARD.action -> skipToNext()
+            MusicServiceAction.BACKWARD.action -> skipToPrevious()
+        }
+        return START_NOT_STICKY
     }
 
     private fun playMusic(uri: Uri) {
-        currentIndex = musicList.indexOf(uri) // Update the current index
         val mediaItem = MediaItem.fromUri(uri)
         exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
@@ -90,55 +102,73 @@ class MusicService : Service() {
     }
 
     private fun pauseMusic() {
-        if (exoPlayer.isPlaying) {
-            exoPlayer.pause()
-        } else {
-            exoPlayer.play()
-        }
+        exoPlayer.pause()
     }
 
-    private fun playNextSong() {
-        if (currentIndex < musicList.size - 1) {
-            currentIndex++
-            playMusic(musicList[currentIndex])
-        }
+    private fun seekTo(position: Long) {
+        exoPlayer.seekTo(position)
     }
 
-    private fun playPreviousSong() {
-        if (currentIndex > 0) {
-            currentIndex--
-            playMusic(musicList[currentIndex])
-        }
+    private fun skipToNext() {
+        exoPlayer.seekToNext()
     }
 
-    private fun skipForward() {
-        exoPlayer.seekTo(exoPlayer.currentPosition + 10000) // Skip forward 10 seconds
+    private fun skipToPrevious() {
+        exoPlayer.seekToPrevious()
     }
 
-    private fun skipBackward() {
-        exoPlayer.seekTo(exoPlayer.currentPosition - 10000) // Skip backward 10 seconds
+
+    private fun toggleShuffle() {
+        isShuffleEnabled = !isShuffleEnabled
+        exoPlayer.shuffleModeEnabled = isShuffleEnabled
+    }
+
+    private fun toggleLoop() {
+        isLoopEnabled = !isLoopEnabled
+        exoPlayer.repeatMode =
+            if (isLoopEnabled) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
     }
 
     @OptIn(UnstableApi::class)
     private fun createNotification(): Notification {
+        val playPauseIcon = if (exoPlayer.isPlaying) R.drawable.pause else R.drawable.playm
+        val playPauseAction = if (exoPlayer.isPlaying) "PAUSE" else "PLAY"
+
+
+        val openAppIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val openAppPendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Playing Music")
-            .setContentText("Music is playing")
+            .setContentTitle("Now Playing")
+            .setContentText(currentTitle)
             .setSmallIcon(R.drawable.musicicon)
-            .addAction(R.drawable.ic_launcher_foreground, "Backward", getPendingIntent("BACKWARD"))
-            .addAction(R.drawable.ic_launcher_foreground, "Pause/Play", getPendingIntent("PAUSE"))
-            .addAction(R.drawable.ic_launcher_foreground, "Forward", getPendingIntent("FORWARD"))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSession.sessionCompatToken))
+            .setContentIntent(openAppPendingIntent) // Set the content intent
+            .addAction(R.drawable.previous, "Previous", getPendingIntent("BACKWARD"))
+            .addAction(playPauseIcon, "Play/Pause", getPendingIntent(playPauseAction))
+            .addAction(R.drawable.forward, "Next", getPendingIntent("FORWARD"))
+            .setStyle(
+                MediaStyle()
+                    .setMediaSession(mediaSession.sessionCompatToken)
+                    .setShowActionsInCompactView(0, 1, 2)
+            )
+            .setOnlyAlertOnce(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(exoPlayer.isPlaying)
             .build()
     }
 
-    private fun getPendingIntent(action: String): PendingIntent {
-        val intent = Intent(this, MusicService::class.java).apply {
-            this.action = action
-        }
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    private fun updateNotification() {
+        val notification = createNotification()
+        startForeground(1, notification)
     }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -152,6 +182,18 @@ class MusicService : Service() {
         }
     }
 
+    private fun getPendingIntent(action: String): PendingIntent {
+        val intent = Intent(this, MusicService::class.java).apply {
+            this.action = action
+        }
+        return PendingIntent.getService(
+            this,
+            action.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         exoPlayer.release()
@@ -159,12 +201,7 @@ class MusicService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        return null
+        return binder
     }
 }
-
-
-
-
-
 
