@@ -152,7 +152,10 @@ fun MainHomeScreen(navController: NavHostController, viewModel: PlayerViewModel 
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(start = 5.dp),
+                            .padding(start = 5.dp)
+                            .clickable {
+                                navController.navigate(Routes.FavoriteSongsScreen)
+                            },
                         colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)

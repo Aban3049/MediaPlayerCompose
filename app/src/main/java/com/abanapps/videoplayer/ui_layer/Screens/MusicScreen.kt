@@ -1,7 +1,6 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +50,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
@@ -247,16 +248,13 @@ fun MusicScreen(
                                     .fillMaxWidth()
                                     .padding(bottom = 5.dp)
                                     .clickable {
-                                        val intent =
-                                            Intent(context, MusicService::class.java).apply {
-                                                action = "PLAY"
-                                                putExtra(
-                                                    "music_uri",
-                                                    Uri.parse(it.path)
-                                                )
-                                                putExtra("music_title", it.title)
-                                            }
-                                        context.startService(intent)
+                                        val intent = Intent(context, MusicService::class.java).apply {
+                                            putExtra("music_uri", it.path.toUri().toString())
+                                            putExtra("music_title", it.title.toString())
+                                        }
+
+                                        // Start the service
+                                        ContextCompat.startForegroundService(context, intent)
 
                                         navHostController.navigate(
                                             Routes.MusicPlayerScreen(

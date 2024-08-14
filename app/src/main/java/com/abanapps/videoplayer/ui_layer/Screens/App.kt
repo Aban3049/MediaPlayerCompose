@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
 import com.abanapps.videoplayer.ui_layer.Navigation.AppNavigation
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -32,7 +33,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewModel()) {
+fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewModel(),roomViewModel: RoomViewModel) {
 
     val context = LocalContext.current
 
@@ -80,7 +81,7 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
     val state = viewModel.showUi.collectAsState()
 
     if (state.value) {
-        AppNavigation()
+        AppNavigation(roomViewModel)
     } else {
         Column(
             modifier = modifier.fillMaxSize(),

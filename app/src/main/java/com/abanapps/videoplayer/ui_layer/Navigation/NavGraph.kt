@@ -5,6 +5,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
+import com.abanapps.videoplayer.ui_layer.Screens.FavouriteSongsScreen
 import com.abanapps.videoplayer.ui_layer.Screens.Folders
 import com.abanapps.videoplayer.ui_layer.Screens.HomeScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MainHomeScreen
@@ -15,7 +17,7 @@ import com.abanapps.videoplayer.ui_layer.Screens.Videos
 import kotlinx.serialization.Serializable
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(roomViewModel: RoomViewModel) {
 
     val navController = rememberNavController()
 
@@ -41,7 +43,7 @@ fun AppNavigation() {
         composable<Routes.MusicPlayerScreen> {
             val musicUrl: Routes.MusicPlayerScreen = it.toRoute<Routes.MusicPlayerScreen>()
             val title: Routes.MusicPlayerScreen = it.toRoute<Routes.MusicPlayerScreen>()
-            MusicPlayerScreen(uri = musicUrl.musicUri,title = title.title ?: "Unknown")
+            MusicPlayerScreen(uri = musicUrl.musicUri,title = title.title ?: "Unknown", roomViewModel = roomViewModel)
         }
 
         composable<Routes.MainHomeScreen> {
@@ -50,6 +52,10 @@ fun AppNavigation() {
 
         composable<Routes.MusicScreen> {
             MusicScreen(navHostController = navController)
+        }
+
+        composable<Routes.FavoriteSongsScreen> {
+            FavouriteSongsScreen(roomViewModel)
         }
 
     }
@@ -76,6 +82,9 @@ sealed class Routes() {
 
     @Serializable
     data object MusicScreen
+
+    @Serializable
+    data object FavoriteSongsScreen
 
     @Serializable
     data class MusicPlayerScreen(val musicUri: String,val title:String)

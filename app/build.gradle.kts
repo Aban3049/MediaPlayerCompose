@@ -4,7 +4,6 @@ plugins {
     id ("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp") version "1.9.20-1.0.13"
     kotlin("plugin.serialization") version "2.0.0"
-    id ("kotlin-parcelize")
 }
 
 android {
@@ -89,6 +88,13 @@ dependencies {
     implementation (libs.androidx.material.icons.extended)
     implementation("androidx.media3:media3-session:1.4.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+
+
 
 }
 

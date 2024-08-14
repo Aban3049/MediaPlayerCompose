@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
@@ -64,13 +65,31 @@ class MusicService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            MusicServiceAction.PLAY.action -> {
-                val uri = intent.getStringExtra("music_uri")?.toUri()
-                uri?.let { playMusic(it) }
+
+        val uriString = intent?.getStringExtra("music_uri")
+        currentTitle = intent?.getStringExtra("music_title") ?: "Unknown"
+
+        if (uriString != null) {
+            try {
+                // Prepare and start playing the media
+                val uri = Uri.parse(uriString)
+                val mediaItem = MediaItem.fromUri(uri)
+                exoPlayer.setMediaItem(mediaItem)
+                exoPlayer.prepare()
+                exoPlayer.play()
+            } catch (e: Exception) {
+                // Handle exceptions such as FileNotFoundException
+                Log.e("MusicService", "Error playing media: ${e.message}")
+                stopSelf() // Stop the service if there's an error
             }
+        }
+
+        when (intent?.action) {
+
+            MusicServiceAction.PLAY.action -> playOrPause()
 
             MusicServiceAction.PAUSE.action -> pauseMusic()
+
             MusicServiceAction.SEEK.action -> {
                 val position = intent.getLongExtra("seek_position", 0L)
                 seekTo(position)
@@ -94,11 +113,13 @@ class MusicService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun playMusic(uri: Uri) {
-        val mediaItem = MediaItem.fromUri(uri)
-        exoPlayer.setMediaItem(mediaItem)
-        exoPlayer.prepare()
-        exoPlayer.play()
+
+    private fun playOrPause() {
+        if (exoPlayer.isPlaying) {
+            exoPlayer.pause()
+        } else {
+            exoPlayer.play()
+        }
     }
 
     private fun pauseMusic() {
@@ -110,11 +131,11 @@ class MusicService : Service() {
     }
 
     private fun skipToNext() {
-        exoPlayer.seekToNext()
+        exoPlayer.seekForward()
     }
 
     private fun skipToPrevious() {
-        exoPlayer.seekToPrevious()
+        exoPlayer.seekBack()
     }
 
 

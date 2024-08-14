@@ -1,19 +1,16 @@
 package com.abanapps.videoplayer.ui_layer.viewModel
 
 import android.app.Application
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abanapps.videoplayer.data_layer.Repo.RoomRepo
 import com.abanapps.videoplayer.data_layer.audioFile.AudioFile
+import com.abanapps.videoplayer.data_layer.roomDatabase.FavouriteSongs
 import com.abanapps.videoplayer.data_layer.videofile.VideoFile
 import com.abanapps.videoplayer.domain_layer.Repo.VideoAppRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,17 +20,13 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(
     private val repo: VideoAppRepo,
     val application: Application
-) : ViewModel() {
+) : ViewModel()
+{
     val showUi = MutableStateFlow(false)
     val videoList = MutableStateFlow(emptyList<VideoFile>())
     val musicList = MutableStateFlow(emptyList<AudioFile>())
     private val isLoading = MutableStateFlow(false)
 
-
-    init {
-        loadAllVideos()
-        loadAllMusic()
-    }
 
     fun loadAllVideos() {
         isLoading.value = true
