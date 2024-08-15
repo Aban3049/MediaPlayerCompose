@@ -106,24 +106,14 @@ fun MusicPlayerScreen(
         if (isShuffleEnabled.value) allMusic.value.shuffled() else allMusic.value
     }
 
-    LaunchedEffect(mediaTitle) {
+    LaunchedEffect(mediaTitle.value) {
         scope.launch {
-            val song = roomViewModel.getSongByTitle( mediaTitle.value?: "Unknown")
-            if (song != null) {
-                isSongInFavourite.value = true
-            }
+            val song = roomViewModel.getSongByTitle(mediaTitle.value ?: "")
+            isSongInFavourite.value = song != null
         }
-
     }
 
-//    LaunchedEffect(mediaUri) {
-//        val song = roomViewModel.getSongByTitle(title ?: "Unknown")
-//        if (song != null) {
-//            isSongInFavourite.value = true
-//        }else{
-//            isSongInFavourite.value = false
-//        }
-//    }
+
 
     fun sendCommandToService(
         action: String,
