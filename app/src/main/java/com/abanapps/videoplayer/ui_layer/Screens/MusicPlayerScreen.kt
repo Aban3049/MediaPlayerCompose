@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +65,7 @@ import com.abanapps.videoplayer.data_layer.roomDatabase.FavouriteSongs
 import com.abanapps.videoplayer.data_layer.service.MusicService
 import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
+import kotlinx.coroutines.launch
 
 fun formatDuration(duration: Long): String {
     val minutes = (duration / 1000) / 60
@@ -80,6 +82,11 @@ fun MusicPlayerScreen(
     context: Context = LocalContext.current
 ) {
 
+    val isSongInFavourite = remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+
     LaunchedEffect(true) {
         viewModel.loadAllMusic()
     }
@@ -93,13 +100,30 @@ fun MusicPlayerScreen(
     val currentPosition = remember { mutableLongStateOf(0L) }
     val totalDuration = remember { mutableLongStateOf(0L) }
 
-    val isFavourite = remember { mutableStateOf(false) }
-
     val allMusic = viewModel.musicList.collectAsState()
 
     val shuffledList = remember(allMusic.value, isShuffleEnabled.value) {
         if (isShuffleEnabled.value) allMusic.value.shuffled() else allMusic.value
     }
+
+    LaunchedEffect(mediaTitle) {
+        scope.launch {
+            val song = roomViewModel.getSongByTitle( mediaTitle.value?: "Unknown")
+            if (song != null) {
+                isSongInFavourite.value = true
+            }
+        }
+
+    }
+
+//    LaunchedEffect(mediaUri) {
+//        val song = roomViewModel.getSongByTitle(title ?: "Unknown")
+//        if (song != null) {
+//            isSongInFavourite.value = true
+//        }else{
+//            isSongInFavourite.value = false
+//        }
+//    }
 
     fun sendCommandToService(
         action: String,
@@ -188,7 +212,7 @@ fun MusicPlayerScreen(
                                     artist = "Unknown"
                                 )
                             )
-                            isFavourite.value = true
+                            isSongInFavourite.value = true
                         }
 
                 ) {
@@ -197,13 +221,14 @@ fun MusicPlayerScreen(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.padding(2.dp)
                     ) {
-                        if (isFavourite.value){
+                        if (isSongInFavourite.value) {
                             Icon(
                                 imageVector = Icons.Default.Star,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.padding())
-                        }else{
+                                modifier = Modifier.padding()
+                            )
+                        } else {
                             Icon(
                                 imageVector = Icons.Outlined.StarOutline,
                                 contentDescription = null,

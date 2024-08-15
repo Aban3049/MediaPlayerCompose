@@ -19,4 +19,8 @@ interface SongsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertSong(song: FavouriteSongs)
+
+    @Query("SELECT * FROM favourite_songs WHERE title = :title")
+    fun getSongByTitle(title: String): FavouriteSongs?
+
 }

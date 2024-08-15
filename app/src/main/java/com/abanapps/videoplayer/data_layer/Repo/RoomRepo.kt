@@ -16,5 +16,9 @@ class RoomRepo (private val dao: SongsDao) {
         dao.deleteSong(song)
     }
 
+    suspend fun getSong(title:String){
+        dao.getSongByTitle(title)
+    }
+
 
 }

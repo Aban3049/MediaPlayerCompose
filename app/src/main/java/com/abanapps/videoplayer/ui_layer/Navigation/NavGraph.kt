@@ -55,7 +55,7 @@ fun AppNavigation(roomViewModel: RoomViewModel) {
         }
 
         composable<Routes.FavoriteSongsScreen> {
-            FavouriteSongsScreen(roomViewModel)
+            FavouriteSongsScreen(navController,roomViewModel)
         }
 
     }

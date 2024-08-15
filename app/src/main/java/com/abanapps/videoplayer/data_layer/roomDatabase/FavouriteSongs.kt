@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "favourite_songs")
 data class FavouriteSongs(
 
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = 0,
+    @PrimaryKey(autoGenerate = true,)
+    val id: Int? = null,
 
     val path: String,
     val title: String,

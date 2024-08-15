@@ -48,7 +48,7 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainHomeScreen(navController: NavHostController, viewModel: PlayerViewModel = hiltViewModel()) {
+fun MainHomeScreen(navController: NavHostController) {
 
 
     Scaffold(
