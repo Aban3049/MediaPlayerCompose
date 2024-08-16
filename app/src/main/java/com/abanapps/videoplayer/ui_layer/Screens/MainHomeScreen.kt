@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +27,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -36,6 +40,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
+import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
 import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 import com.abanapps.videoplayer.ui_layer.Utils.FileItem
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
@@ -48,8 +53,27 @@ import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainHomeScreen(navController: NavHostController) {
+fun MainHomeScreen(
+    navController: NavHostController,
+    roomViewModel: RoomViewModel,
+    viewModel: PlayerViewModel = hiltViewModel()
+) {
 
+    val favouriteSongsSize = roomViewModel.allFavouriteSongs.collectAsState(initial = emptyList())
+
+    val audioListSize = viewModel.musicList.collectAsState(initial = emptyList())
+
+    val videoList = viewModel.videoList.collectAsState(initial = emptyList())
+
+    val mediaFiles = viewModel.mediaFileList.collectAsState(initial = emptyList())
+
+    val isLoading = viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(true) {
+        viewModel.loadAllMusic()
+        viewModel.loadAllVideos()
+        viewModel.loadMediaFiles()
+    }
 
     Scaffold(
         topBar = {
@@ -140,7 +164,7 @@ fun MainHomeScreen(navController: NavHostController) {
                             Spacer(modifier = Modifier.height(5.dp))
 
                             Text(
-                                text = "121 Files",
+                                text = "${mediaFiles.value.size} Files",
                                 color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
@@ -186,7 +210,7 @@ fun MainHomeScreen(navController: NavHostController) {
 
 
                             Text(
-                                text = "30 Files",
+                                text = "${favouriteSongsSize.value.size} Files",
                                 color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
@@ -240,7 +264,7 @@ fun MainHomeScreen(navController: NavHostController) {
                             Spacer(modifier = Modifier.height(5.dp))
 
                             Text(
-                                text = "20 Files",
+                                text = "${audioListSize.value.size} Files",
                                 color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
@@ -286,7 +310,7 @@ fun MainHomeScreen(navController: NavHostController) {
 
 
                             Text(
-                                text = "80 Files",
+                                text = "${videoList.value.size} Files",
                                 color = Color(0xFFFF99989d),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 14.sp
@@ -299,8 +323,8 @@ fun MainHomeScreen(navController: NavHostController) {
                 }
 
                 Text(
-                    text = "Frequently Used",
-                    color = Color(0xFF5c6477),
+                    text = "Recently Used",
+                    color = Color.White,
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 10.dp)
@@ -319,12 +343,25 @@ fun MainHomeScreen(navController: NavHostController) {
                         shape = RoundedCornerShape(13.dp)
                     ) {
 
-                        FileItem("Downloads", "20 Files")
-                        FileItem("Camera", "70 Files")
-                        FileItem("SnapChat", "30 Files")
-                        FileItem("Instagram", "0 Files")
-                        FileItem("DCIM", "70 Files")
-                        FileItem("Video", "0 Files")
+                        if (isLoading.value) {
+                            FileItem("Downloads", "20 Files")
+                            FileItem("Camera", "70 Files")
+                            FileItem("SnapChat", "30 Files")
+                            FileItem("Instagram", "0 Files")
+                            FileItem("DCIM", "70 Files")
+                            FileItem("Video", "0 Files")
+
+                        } else {
+                            LazyColumn {
+
+                                items(mediaFiles.value) {
+                                    FileItem(it.path,it.name)
+                                }
+
+                            }
+
+                        }
+
 
                     }
 

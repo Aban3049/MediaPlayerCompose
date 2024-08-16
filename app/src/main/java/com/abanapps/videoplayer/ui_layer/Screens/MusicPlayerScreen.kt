@@ -82,7 +82,15 @@ fun MusicPlayerScreen(
     context: Context = LocalContext.current
 ) {
 
-    val isSongInFavourite = remember { mutableStateOf(false) }
+
+    val isFavourite = remember {
+        mutableStateOf(false)
+    }
+
+    val isSongInFavourite = remember {
+
+        mutableStateOf(false)
+    }
 
     val scope = rememberCoroutineScope()
 
@@ -195,13 +203,25 @@ fun MusicPlayerScreen(
                     colors = CardDefaults.cardColors(Color(0xFF6e6d72)), modifier = Modifier
                         .clip(CircleShape)
                         .clickable {
-                            roomViewModel.upsertSong(
-                                songs = FavouriteSongs(
-                                    path = mediaUri.value,
-                                    title = mediaTitle.value ?: "Unknown",
-                                    artist = "Unknown"
+                            if (isFavourite.value) {
+                                roomViewModel.deleteSong(
+                                    FavouriteSongs(
+                                        path = mediaUri.value,
+                                        title = mediaTitle.value ?: "Unknown",
+                                        artist = "Unknown",
+
+                                        )
                                 )
-                            )
+                            } else {
+                                roomViewModel.upsertSong(
+                                    FavouriteSongs(
+                                        path = mediaUri.value,
+                                        title = mediaTitle.value ?: "Unknown",
+                                        artist = "Unknown"
+                                    )
+                                )
+                            }
+                            isFavourite.value = !isFavourite.value
                             isSongInFavourite.value = true
                         }
 
@@ -211,7 +231,7 @@ fun MusicPlayerScreen(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.padding(2.dp)
                     ) {
-                        if (isSongInFavourite.value) {
+                         if (isFavourite.value) {
                             Icon(
                                 imageVector = Icons.Default.Star,
                                 contentDescription = null,
@@ -298,6 +318,14 @@ fun MusicPlayerScreen(
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 itemsIndexed(shuffledList) { _, music ->
+
+                    LaunchedEffect(music.title) {
+                        scope.launch {
+                            val song = roomViewModel.getSongByTitle(music.title ?: "")
+                            isFavourite.value = song != null
+                        }
+                    }
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

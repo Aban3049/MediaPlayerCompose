@@ -4,11 +4,10 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abanapps.videoplayer.data_layer.Repo.RoomRepo
 import com.abanapps.videoplayer.data_layer.audioFile.AudioFile
-import com.abanapps.videoplayer.data_layer.roomDatabase.FavouriteSongs
+import com.abanapps.videoplayer.data_layer.mediaFile.MediaFiles
 import com.abanapps.videoplayer.data_layer.videofile.VideoFile
-import com.abanapps.videoplayer.domain_layer.Repo.VideoAppRepo
+import com.abanapps.videoplayer.domain_layer.Repo.AppRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -18,14 +17,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val repo: VideoAppRepo,
+    private val repo: AppRepo,
     val application: Application
 ) : ViewModel()
 {
     val showUi = MutableStateFlow(false)
     val videoList = MutableStateFlow(emptyList<VideoFile>())
     val musicList = MutableStateFlow(emptyList<AudioFile>())
-    private val isLoading = MutableStateFlow(false)
+    val mediaFileList = MutableStateFlow(emptyList<MediaFiles>())
+    val isLoading = MutableStateFlow(false)
 
 
     fun loadAllVideos() {
@@ -45,6 +45,17 @@ class PlayerViewModel @Inject constructor(
             repo.getAllAudios(application).collectLatest {
                 musicList.value = it
                 Log.d("ALLMEDIA", "loadAllMusic: ${musicList.value} ")
+            }
+            isLoading.value = false
+        }
+    }
+
+    fun loadMediaFiles(){
+        isLoading.value = true
+        viewModelScope.launch {
+            repo.getAllMediaFiles(application).collectLatest {
+                mediaFileList.value = it
+                Log.d("ALLMEDIA", "loadAllMediaFiles: ${mediaFileList.value} ")
             }
             isLoading.value = false
         }

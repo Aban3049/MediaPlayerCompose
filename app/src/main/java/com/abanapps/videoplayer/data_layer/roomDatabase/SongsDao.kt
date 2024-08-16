@@ -21,6 +21,8 @@ interface SongsDao {
     suspend fun upsertSong(song: FavouriteSongs)
 
     @Query("SELECT * FROM favourite_songs WHERE title = :title")
-    fun getSongByTitle(title: String): FavouriteSongs?
+    suspend fun getSongByTitle(title: String): FavouriteSongs?
+
+
 
 }

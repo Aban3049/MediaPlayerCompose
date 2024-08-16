@@ -5,13 +5,14 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import com.abanapps.videoplayer.data_layer.audioFile.AudioFile
+import com.abanapps.videoplayer.data_layer.mediaFile.MediaFiles
 import com.abanapps.videoplayer.data_layer.videofile.VideoFile
-import com.abanapps.videoplayer.domain_layer.Repo.VideoAppRepo
+import com.abanapps.videoplayer.domain_layer.Repo.AppRepo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 
-class VideoAppRepoImpl : VideoAppRepo {
+class AppRepoImpl : AppRepo {
 
     override suspend fun getAllVideos(application: Application): Flow<ArrayList<VideoFile>> = flow {
         val allVideo = ArrayList<VideoFile>()
@@ -88,7 +89,8 @@ class VideoAppRepoImpl : VideoAppRepo {
 //            val uri = MediaStore.Files.getContentUri("external")
 //            val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0 AND ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
 //            val selectionArgs = arrayOf("audio/%")
-            val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? AND ${MediaStore.Audio.Media.DURATION} >= ?"
+            val selection =
+                "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? AND ${MediaStore.Audio.Media.DURATION} >= ?"
             val selectionArgs = arrayOf("audio/%", "15000")
             val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             application.contentResolver.query(uri, projection, selection, selectionArgs, sortOrder)
@@ -113,6 +115,58 @@ class VideoAppRepoImpl : VideoAppRepo {
         }
         emit(allMusicFiles)
     }
+
+    override suspend fun getAllMediaFiles(application: Application): Flow<ArrayList<MediaFiles>> =
+        flow {
+
+            val allMediaFiles = ArrayList<MediaFiles>()
+
+            val projection = arrayOf(
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.DATA,
+                MediaStore.Files.FileColumns.DATE_ADDED
+            )
+
+            val selection =
+                "${MediaStore.Files.FileColumns.MEDIA_TYPE}=? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE}=?"
+            val selectionArgs = arrayOf(
+                MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO.toString(),
+                MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
+            )
+            val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+
+            val queryUri = MediaStore.Files.getContentUri("external")
+
+            val memoryCursor = application.contentResolver.query(
+                queryUri,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )
+
+            memoryCursor?.use { cursor ->
+
+                while (cursor.moveToNext()) {
+
+                    val mediaFiles = MediaFiles(
+                        uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)),
+                        path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)),
+                        name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)),
+                        lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED))
+                    )
+
+                    allMediaFiles.add(mediaFiles)
+                }
+
+            } ?: kotlin.run {
+                Log.d("VideoAppRepoImpl", "getAllMediaFiles: failed to query media files ")
+            }
+
+            emit(allMediaFiles)
+
+        }
 
 }
 

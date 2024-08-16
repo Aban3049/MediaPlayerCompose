@@ -24,7 +24,7 @@ fun AppNavigation(roomViewModel: RoomViewModel) {
     NavHost(navController = navController, startDestination = Routes.HomeScreen) {
 
         composable<Routes.HomeScreen> {
-            HomeScreen(navController)
+            HomeScreen(navController,roomViewModel)
         }
 
         composable<Routes.VideosScreen> {
@@ -47,7 +47,7 @@ fun AppNavigation(roomViewModel: RoomViewModel) {
         }
 
         composable<Routes.MainHomeScreen> {
-            MainHomeScreen(navController)
+            MainHomeScreen(navController,roomViewModel)
         }
 
         composable<Routes.MusicScreen> {
