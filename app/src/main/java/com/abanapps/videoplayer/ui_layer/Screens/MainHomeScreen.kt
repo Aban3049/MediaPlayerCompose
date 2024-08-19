@@ -333,7 +333,6 @@ fun MainHomeScreen(
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
                 ) {
 
                     Card(
@@ -355,7 +354,7 @@ fun MainHomeScreen(
                             LazyColumn {
 
                                 items(mediaFiles.value) {
-                                    FileItem(it.path,it.name)
+                                    FileItem(it.path,it.fileCount.toString())
                                 }
 
                             }

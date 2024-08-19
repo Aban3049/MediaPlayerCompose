@@ -6,10 +6,13 @@ import android.provider.MediaStore
 import android.util.Log
 import com.abanapps.videoplayer.data_layer.audioFile.AudioFile
 import com.abanapps.videoplayer.data_layer.mediaFile.MediaFiles
+import com.abanapps.videoplayer.data_layer.mediaFile.MediaPath
 import com.abanapps.videoplayer.data_layer.videofile.VideoFile
 import com.abanapps.videoplayer.domain_layer.Repo.AppRepo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.io.File
+
 
 
 class AppRepoImpl : AppRepo {
@@ -116,59 +119,75 @@ class AppRepoImpl : AppRepo {
         emit(allMusicFiles)
     }
 
-    override suspend fun getAllMediaFiles(application: Application): Flow<ArrayList<MediaFiles>> =
-        flow {
+    data class MediaFiles(
+        val uri: String,
+        val path: String,
+        val name: String,
+    )
 
-            val allMediaFiles = ArrayList<MediaFiles>()
+    data class MediaPath(
+        val folderName: String,
+        val fileCount: Int,
+    )
 
-            val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.DATE_ADDED
-            )
 
-            val selection =
-                "${MediaStore.Files.FileColumns.MEDIA_TYPE}=? OR ${MediaStore.Files.FileColumns.MEDIA_TYPE}=?"
-            val selectionArgs = arrayOf(
-                MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO.toString(),
-                MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO.toString()
-            )
-            val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+    override suspend fun getAllMediaFiles(application: Application): Flow<List<com.abanapps.videoplayer.data_layer.mediaFile.MediaPath>> = flow {
+        val allMediaFiles = ArrayList<MediaFiles>()
 
-            val queryUri = MediaStore.Files.getContentUri("external")
+        // 쿼리 설정
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns._ID,
+            MediaStore.Files.FileColumns.DISPLAY_NAME,
+            MediaStore.Files.FileColumns.DATA
+        )
 
-            val memoryCursor = application.contentResolver.query(
-                queryUri,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )
+        val selection = "${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ? OR ${MediaStore.Files.FileColumns.MIME_TYPE} LIKE ?"
+        val selectionArgs = arrayOf(
+            "audio/%",
+            "video/%"
+        )
+        val queryUri = MediaStore.Files.getContentUri("external")
 
-            memoryCursor?.use { cursor ->
+        // 쿼리 실행
+        val memoryCursor = application.contentResolver.query(
+            queryUri,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
 
-                while (cursor.moveToNext()) {
-
-                    val mediaFiles = MediaFiles(
-                        uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)),
-                        path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)),
-                        name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)),
-                        lastModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED))
-                    )
-
-                    allMediaFiles.add(mediaFiles)
-                }
-
-            } ?: kotlin.run {
-                Log.d("VideoAppRepoImpl", "getAllMediaFiles: failed to query media files ")
+        memoryCursor?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val mediaFiles = MediaFiles(
+                    uri = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)),
+                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)),
+                    name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
+                )
+                allMediaFiles.add(mediaFiles)
             }
-
-            emit(allMediaFiles)
-
         }
 
+        // 폴더 이름별로 그룹화
+        val groupedByFolder = allMediaFiles.groupBy {
+            File(it.path).parentFile?.name.orEmpty()
+        }.map { (folderName, files) ->
+            MediaPath(folderName = folderName, fileCount = files.size)
+        }
+
+        emit(groupedByFolder)
+    }
+
 }
+
+
+
+
+// Implementation for getAllVideos
+
+
+
+
 
 
 

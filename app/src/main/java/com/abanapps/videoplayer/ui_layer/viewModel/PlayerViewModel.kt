@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abanapps.videoplayer.data_layer.audioFile.AudioFile
 import com.abanapps.videoplayer.data_layer.mediaFile.MediaFiles
+import com.abanapps.videoplayer.data_layer.mediaFile.MediaPath
 import com.abanapps.videoplayer.data_layer.videofile.VideoFile
 import com.abanapps.videoplayer.domain_layer.Repo.AppRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +25,7 @@ class PlayerViewModel @Inject constructor(
     val showUi = MutableStateFlow(false)
     val videoList = MutableStateFlow(emptyList<VideoFile>())
     val musicList = MutableStateFlow(emptyList<AudioFile>())
-    val mediaFileList = MutableStateFlow(emptyList<MediaFiles>())
+    val mediaFileList = MutableStateFlow(emptyList<MediaPath>())
     val isLoading = MutableStateFlow(false)
 
 
