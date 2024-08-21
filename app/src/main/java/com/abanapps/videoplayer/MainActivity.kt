@@ -1,5 +1,6 @@
 package com.abanapps.videoplayer
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,6 +41,15 @@ class MainActivity : ComponentActivity() {
             }
 
 
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (isTaskRoot) {
+            val intent = Intent("com.yourapp.APP_CLOSED")
+            sendBroadcast(intent)
         }
     }
 

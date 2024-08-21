@@ -64,6 +64,7 @@ import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.data_layer.roomDatabase.FavouriteSongs
 import com.abanapps.videoplayer.data_layer.service.MusicService
 import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
+import com.abanapps.videoplayer.ui_layer.Utils.Utils
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 import kotlinx.coroutines.launch
 
@@ -103,10 +104,7 @@ fun MusicPlayerScreen(
     val mediaTitle = remember { mutableStateOf(title) }
     val isLoopEnabled = remember { mutableStateOf(false) }
     val isShuffleEnabled = remember { mutableStateOf(false) }
-    val playing = remember { mutableStateOf(false) }
-    val progress = remember { mutableFloatStateOf(0f) }
-    val currentPosition = remember { mutableLongStateOf(0L) }
-    val totalDuration = remember { mutableLongStateOf(0L) }
+
 
     val allMusic = viewModel.musicList.collectAsState()
 
@@ -389,48 +387,6 @@ fun MusicPlayerScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(7.dp))
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Slider(
-                        value = progress.value,
-                        onValueChange = { value ->
-                            val newPosition = (value / 100f) * totalDuration.value
-                            sendCommandToService(
-                                MusicServiceAction.SEEK.action,
-                                seekPosition = newPosition.toLong()
-                            )
-                            progress.value = value
-                        },
-                        valueRange = 0f..100f,
-                        colors = SliderDefaults.colors(
-                            inactiveTrackColor = Color(0xFF7b7a7f),
-                            activeTrackColor = Color(0xFFb0afb4),
-                            thumbColor = Color.Transparent
-                        ),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = formatDuration(currentPosition.value),
-                        color = Color(0xFF8e8d92),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 14.sp,
-                    )
-                    Text(
-                        text = formatDuration(totalDuration.value),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 14.sp,
-                        color = Color(0xFF8e8d92),
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -451,18 +407,10 @@ fun MusicPlayerScreen(
                 }
 
                 IconButton(onClick = {
-                    if (playing.value) {
-                        sendCommandToService(MusicServiceAction.PAUSE.action)
-                    } else {
-                        sendCommandToService(
-                            MusicServiceAction.PLAY.action,
-                            Uri.parse(mediaUri.value)
-                        )
-                    }
-                    playing.value = !playing.value
+                        sendCommandToService(MusicServiceAction.PLAY.action)
                 }) {
                     Icon(
-                        if (playing.value) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        if (Utils.isPlaying.value) Icons.Default.PlayArrow else Icons.Default.Pause,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(40.dp)

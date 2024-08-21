@@ -28,45 +28,51 @@ import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewModel(),roomViewModel: RoomViewModel) {
+fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewModel(), roomViewModel: RoomViewModel) {
 
     val context = LocalContext.current
 
-    lateinit var mediaPermissionState: PermissionState
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        mediaPermissionState =
-            rememberPermissionState(permission = Manifest.permission.READ_MEDIA_VIDEO)
-        mediaPermissionState = rememberPermissionState(permission = Manifest.permission.READ_MEDIA_AUDIO)
+    val mediaPermissionsState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.READ_MEDIA_VIDEO
+            )
+        )
+    } else {
+        rememberMultiplePermissionsState(
+            permissions = listOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        )
     }
-    val mediaPermissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
-            viewModel.showUi.value = it
-        }
 
-    val permissionLauncher2 = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            viewModel.showUi.value = true
-            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.values.all { it }
+        viewModel.showUi.value = allGranted
+        if (allGranted) {
+            Toast.makeText(context, "Permissions Granted", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Permissions Denied", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (!mediaPermissionState.status.isGranted) {
-                mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
-                mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+            if (!mediaPermissionsState.allPermissionsGranted) {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_VIDEO
+                    )
+                )
             } else {
                 viewModel.showUi.value = true
             }
@@ -74,10 +80,9 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
             if (checkPermissions(context)) {
                 viewModel.showUi.value = true
             } else {
-                permissionLauncher2.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                permissionLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
             }
         }
-
     }
 
     val state = viewModel.showUi.collectAsState()
@@ -93,19 +98,21 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
             Text(text = "Permission Not Granted")
             Button(onClick = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
-                    mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
+                    permissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.READ_MEDIA_AUDIO,
+                            Manifest.permission.READ_MEDIA_VIDEO
+                        )
+                    )
                 } else {
-                    permissionLauncher2.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    permissionLauncher.launch(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
                 }
             }, shape = RoundedCornerShape(10.dp)) {
                 Text(text = "Grant Permission")
             }
         }
     }
-
 }
-
 
 private fun checkPermissions(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -124,7 +131,6 @@ private fun checkPermissions(context: Context): Boolean {
         ) == PermissionChecker.PERMISSION_GRANTED
     }
 }
-
 
 
 

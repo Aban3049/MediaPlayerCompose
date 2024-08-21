@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -25,6 +24,7 @@ import androidx.media3.session.MediaSession
 import com.abanapps.videoplayer.MainActivity
 import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.ui_layer.Screens.MusicServiceAction
+import com.abanapps.videoplayer.ui_layer.Utils.Utils
 
 class MusicService : Service() {
 
@@ -71,16 +71,15 @@ class MusicService : Service() {
 
         if (uriString != null) {
             try {
-                // Prepare and start playing the media
+
                 val uri = Uri.parse(uriString)
                 val mediaItem = MediaItem.fromUri(uri)
                 exoPlayer.setMediaItem(mediaItem)
                 exoPlayer.prepare()
                 exoPlayer.play()
             } catch (e: Exception) {
-                // Handle exceptions such as FileNotFoundException
                 Log.e("MusicService", "Error playing media: ${e.message}")
-                stopSelf() // Stop the service if there's an error
+                stopSelf()
             }
         }
 
@@ -88,7 +87,7 @@ class MusicService : Service() {
 
             MusicServiceAction.PLAY.action -> playOrPause()
 
-            MusicServiceAction.PAUSE.action -> pauseMusic()
+            MusicServiceAction.PAUSE.action -> exoPlayer.pause()
 
             MusicServiceAction.SEEK.action -> {
                 val position = intent.getLongExtra("seek_position", 0L)
@@ -116,15 +115,14 @@ class MusicService : Service() {
 
     private fun playOrPause() {
         if (exoPlayer.isPlaying) {
+            Utils.isPlaying.value = true
             exoPlayer.pause()
         } else {
             exoPlayer.play()
+            Utils.isPlaying.value = false
         }
     }
 
-    private fun pauseMusic() {
-        exoPlayer.pause()
-    }
 
     private fun seekTo(position: Long) {
         exoPlayer.seekTo(position)

@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -132,5 +133,6 @@ fun FileItem(path:String="Camera",files:String="80 Files"){
     )
 }
 
-
-//0xFF393b4a files color
+object Utils {
+    val isPlaying = mutableStateOf(false)
+}
