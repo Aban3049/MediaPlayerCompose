@@ -12,6 +12,7 @@ import com.abanapps.videoplayer.ui_layer.Screens.HomeScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MainHomeScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MusicPlayerScreen
 import com.abanapps.videoplayer.ui_layer.Screens.MusicScreen
+import com.abanapps.videoplayer.ui_layer.Screens.RecentScreen
 import com.abanapps.videoplayer.ui_layer.Screens.VideoView
 import com.abanapps.videoplayer.ui_layer.Screens.Videos
 import kotlinx.serialization.Serializable
@@ -57,6 +58,10 @@ fun AppNavigation(roomViewModel: RoomViewModel) {
         composable<Routes.FavoriteSongsScreen> {
             FavouriteSongsScreen(navController,roomViewModel)
         }
+        
+        composable<Routes.RecentScreen> { 
+            RecentScreen(navController = navController)
+        }
 
     }
 
@@ -85,6 +90,9 @@ sealed class Routes() {
 
     @Serializable
     data object FavoriteSongsScreen
+    
+    @Serializable
+    data object RecentScreen
 
     @Serializable
     data class MusicPlayerScreen(val musicUri: String,val title:String)

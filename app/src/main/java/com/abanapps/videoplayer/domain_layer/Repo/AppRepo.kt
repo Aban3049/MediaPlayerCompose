@@ -14,6 +14,5 @@ interface AppRepo {
 
    suspend fun getAllAudios(application: Application): Flow<ArrayList<AudioFile>>
 
-   suspend fun getAllMediaFiles(application: Application): Flow<List<MediaPath>>
-
+   suspend fun getAllMediaFiles(application: Application): Flow<List<com.abanapps.videoplayer.data_layer.mediaFile.MediaPath>>
 }

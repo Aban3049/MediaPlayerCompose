@@ -354,7 +354,7 @@ fun MainHomeScreen(
                             LazyColumn {
 
                                 items(mediaFiles.value) {
-                                    FileItem(it.path,it.fileCount.toString())
+                                    FileItem(it.folderName,it.fileCount.toString())
                                 }
 
                             }

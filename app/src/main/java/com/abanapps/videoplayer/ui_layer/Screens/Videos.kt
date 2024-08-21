@@ -59,16 +59,6 @@ import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 
 
-//0xFF191722 background color
-//Card(
-//modifier = Modifier
-//.fillMaxSize()
-//.padding(12.dp),
-//elevation = CardDefaults.cardElevation(14.dp),
-//shape = RoundedCornerShape(13.dp),
-//colors = CardDefaults.cardColors(Color(0xFF1f2130))
-//) { card code
-//0xFF393b4a path text color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
