@@ -134,7 +134,10 @@ fun MainHomeScreen(
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(end = 5.dp),
+                            .padding(end = 5.dp)
+                            .clickable {
+                                navController.navigate(Routes.RecentScreen)
+                            },
                         colors = CardDefaults.cardColors(Color(0xFF1c1c1e)),
                         elevation = CardDefaults.cardElevation(14.dp),
                         shape = RoundedCornerShape(13.dp)

@@ -47,13 +47,13 @@ fun RecentScreen(navController: NavHostController, viewModel: PlayerViewModel = 
         topBar = {
             androidx.compose.material3.TopAppBar(title = {
                 Text(
-                    text = "Library", color = Color(0xFFfc2b49),
+                    text = "Recent", color = Color(0xFFfc2b49),
                     style = MaterialTheme.typography.titleLarge,
                 )
             },
                 navigationIcon = {
                     IconButton(onClick = {
-//                        navHostController.popBackStack()
+                        navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBackIosNew,

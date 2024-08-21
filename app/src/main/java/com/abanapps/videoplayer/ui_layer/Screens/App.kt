@@ -42,6 +42,7 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         mediaPermissionState =
             rememberPermissionState(permission = Manifest.permission.READ_MEDIA_VIDEO)
+        mediaPermissionState = rememberPermissionState(permission = Manifest.permission.READ_MEDIA_AUDIO)
     }
     val mediaPermissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
@@ -65,6 +66,7 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!mediaPermissionState.status.isGranted) {
                 mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
+                mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
             } else {
                 viewModel.showUi.value = true
             }
@@ -91,6 +93,7 @@ fun App(modifier: Modifier = Modifier, viewModel: PlayerViewModel = hiltViewMode
             Text(text = "Permission Not Granted")
             Button(onClick = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
                     mediaPermissionLauncher.launch(Manifest.permission.READ_MEDIA_VIDEO)
                 } else {
                     permissionLauncher2.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
