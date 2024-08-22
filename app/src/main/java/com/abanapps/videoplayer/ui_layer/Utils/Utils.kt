@@ -1,7 +1,6 @@
 package com.abanapps.videoplayer.ui_layer.Utils
 
-import android.content.Intent
-import android.os.Build
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,22 +22,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
 import com.abanapps.videoplayer.ui_layer.Screens.randomColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(title:String,navHostController: NavHostController){
+fun TopAppBar(title: String, navHostController: NavHostController) {
 
     CenterAlignedTopAppBar(
         title = {
@@ -78,7 +79,7 @@ fun TopAppBar(title:String,navHostController: NavHostController){
 }
 
 @Composable
-fun FileItem(path:String="Camera",files:String="80 Files"){
+fun FileItem(path: String = "Camera", files: String = "80 Files") {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,6 +131,23 @@ fun FileItem(path:String="Camera",files:String="80 Files"){
             .fillMaxWidth()
             .height(1.dp)
             .background(Color.Black)
+    )
+}
+
+
+
+@Composable
+fun exoPlayerSaver(context: Context, mediaItem: MediaItem): Saver<ExoPlayer, Long> {
+    return Saver(
+        save = { player -> player.currentPosition },
+        restore = { position ->
+            ExoPlayer.Builder(context).build().apply {
+                setMediaItem(mediaItem)
+                seekTo(position)
+                playWhenReady = true
+                prepare()
+            }
+        }
     )
 }
 

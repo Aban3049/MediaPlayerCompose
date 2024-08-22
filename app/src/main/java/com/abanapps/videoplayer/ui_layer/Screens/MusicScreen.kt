@@ -218,7 +218,9 @@ fun MusicScreen(
                         }
 
                         Button(
-                            onClick = { },
+                            onClick = {
+                                allMusic.value.shuffled()
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = 7.dp),

@@ -11,6 +11,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,33 +21,40 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.abanapps.videoplayer.ui_layer.Utils.exoPlayerSaver
 
 @Composable
 fun VideoView(videoUri: String) {
-    var lifeCycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
+    val lifeCycle by remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
     val context = LocalContext.current
 
     val mediaItem2 = MediaItem.fromUri(videoUri)
-    val exoPlayer = remember {
+
+    val exoPlayer = rememberSaveable(context, videoUri, saver = exoPlayerSaver(context, mediaItem2)) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(mediaItem2)
-            prepare()
             playWhenReady = true
+            prepare()
         }
     }
 
+
     val lifeCycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    DisposableEffect(key1 = lifeCycleOwner) {
+    DisposableEffect(lifeCycleOwner, exoPlayer) {
         val observer = LifecycleEventObserver { _, event ->
-            lifeCycle = event
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> exoPlayer.pause()
+                Lifecycle.Event.ON_RESUME -> exoPlayer.play()
+                Lifecycle.Event.ON_DESTROY -> exoPlayer.release()
+                else -> {}
+            }
         }
         lifeCycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
-            exoPlayer.release()
             lifeCycleOwner.lifecycle.removeObserver(observer)
         }
     }
+
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),

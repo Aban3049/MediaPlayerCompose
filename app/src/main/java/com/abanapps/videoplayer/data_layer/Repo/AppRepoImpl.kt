@@ -157,7 +157,7 @@ class AppRepoImpl : AppRepo {
                 val mediaFiles = MediaFiles(
                     uri = memoryCursor.getString(memoryCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)),
                     path = memoryCursor.getString(memoryCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)),
-                    name = memoryCursor.getString(memoryCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
+                    name = memoryCursor.getString(memoryCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)) ?: "Unknown"
                 )
                 allMediaFiles.add(mediaFiles)
             }

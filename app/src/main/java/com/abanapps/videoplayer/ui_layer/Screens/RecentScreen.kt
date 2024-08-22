@@ -86,12 +86,12 @@ fun RecentScreen(navController: NavHostController, viewModel: PlayerViewModel = 
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp)
+                    .padding(start = 10.dp, end = 10.dp,)
             ) {
 
                 Text(
                     text = "Recent",
-                    modifier = Modifier.padding(top = 3.dp, start = 3.dp),
+                    modifier = Modifier.padding(top = 3.dp, start = 3.dp, bottom = 10.dp),
                     color = Color.White,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold,
