@@ -35,14 +35,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -68,12 +64,6 @@ import com.abanapps.videoplayer.ui_layer.Utils.Utils
 import com.abanapps.videoplayer.ui_layer.viewModel.PlayerViewModel
 import kotlinx.coroutines.launch
 
-fun formatDuration(duration: Long): String {
-    val minutes = (duration / 1000) / 60
-    val seconds = (duration / 1000) % 60
-    return String.format("%02d:%02d", minutes, seconds)
-}
-
 @Composable
 fun MusicPlayerScreen(
     uri: String,
@@ -84,20 +74,9 @@ fun MusicPlayerScreen(
 ) {
 
 
-    val isFavourite = remember {
-        mutableStateOf(false)
-    }
-
-    val isSongInFavourite = remember {
-
-        mutableStateOf(false)
-    }
-
-    val scope = rememberCoroutineScope()
-
-
     LaunchedEffect(true) {
         viewModel.loadAllMusic()
+        roomViewModel.allFavouriteSongs
     }
 
     val mediaUri = remember { mutableStateOf(uri) }
@@ -107,18 +86,11 @@ fun MusicPlayerScreen(
 
 
     val allMusic = viewModel.musicList.collectAsState()
+    val favouriteMusicList = roomViewModel.allFavouriteSongs.collectAsState(initial = emptyList())
 
     val shuffledList = remember(allMusic.value, isShuffleEnabled.value) {
         if (isShuffleEnabled.value) allMusic.value.shuffled() else allMusic.value
     }
-
-    LaunchedEffect(mediaTitle.value) {
-        scope.launch {
-            val song = roomViewModel.getSongByTitle(mediaTitle.value ?: "")
-            isSongInFavourite.value = song != null
-        }
-    }
-
 
 
     fun sendCommandToService(
@@ -201,14 +173,13 @@ fun MusicPlayerScreen(
                     colors = CardDefaults.cardColors(Color(0xFF6e6d72)), modifier = Modifier
                         .clip(CircleShape)
                         .clickable {
-                            if (isFavourite.value) {
+                            if (favouriteMusicList.value.any { it.title == mediaTitle.value }) {
                                 roomViewModel.deleteSong(
                                     FavouriteSongs(
                                         path = mediaUri.value,
                                         title = mediaTitle.value ?: "Unknown",
-                                        artist = "Unknown",
-
-                                        )
+                                        artist = "Unknown"
+                                    )
                                 )
                             } else {
                                 roomViewModel.upsertSong(
@@ -219,8 +190,6 @@ fun MusicPlayerScreen(
                                     )
                                 )
                             }
-                            isFavourite.value = !isFavourite.value
-                            isSongInFavourite.value = true
                         }
 
                 ) {
@@ -229,25 +198,22 @@ fun MusicPlayerScreen(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.padding(2.dp)
                     ) {
-                         if (isFavourite.value) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.padding()
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Outlined.StarOutline,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.padding()
-                            )
-                        }
 
+
+                        val isSongInFavourite =
+                            favouriteMusicList.value.any { it.title == mediaTitle.value }
+
+                        Icon(
+                            imageVector = if (isSongInFavourite) Icons.Default.Star else Icons.Outlined.StarOutline,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.padding()
+                        )
                     }
 
                 }
+
+
 
                 Spacer(modifier = Modifier.width(8.dp))
 
@@ -273,166 +239,164 @@ fun MusicPlayerScreen(
 
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Playing Next",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Playing Next",
+                color = Color.White,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            IconButton(onClick = {
+                isShuffleEnabled.value = !isShuffleEnabled.value
+                sendCommandToService(MusicServiceAction.SHUFFLE.action)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Shuffle,
+                    contentDescription = null,
+                    tint = if (isShuffleEnabled.value) Color(0xFF00FF00) else Color(0xFFcac9ce)
                 )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                IconButton(onClick = {
-                    isShuffleEnabled.value = !isShuffleEnabled.value
-                    sendCommandToService(MusicServiceAction.SHUFFLE.action)
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Shuffle,
-                        contentDescription = null,
-                        tint = if (isShuffleEnabled.value) Color(0xFF00FF00) else Color(0xFFcac9ce)
-                    )
-                }
-
-                IconButton(onClick = {
-                    isLoopEnabled.value = !isLoopEnabled.value
-                    sendCommandToService(MusicServiceAction.LOOP.action)
-                }) {
-                    Icon(
-                        imageVector = if (isLoopEnabled.value) Icons.Default.RepeatOne else Icons.Default.Repeat,
-                        contentDescription = null,
-                        tint = if (isLoopEnabled.value) Color(0xFF00FF00) else Color(0xFFcac9ce)
-                    )
-                }
             }
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                itemsIndexed(shuffledList) { _, music ->
+            IconButton(onClick = {
+                isLoopEnabled.value = !isLoopEnabled.value
+                sendCommandToService(MusicServiceAction.LOOP.action)
+            }) {
+                Icon(
+                    imageVector = if (isLoopEnabled.value) Icons.Default.RepeatOne else Icons.Default.Repeat,
+                    contentDescription = null,
+                    tint = if (isLoopEnabled.value) Color(0xFF00FF00) else Color(0xFFcac9ce)
+                )
+            }
+        }
 
-                    LaunchedEffect(music.title) {
-                        scope.launch {
-                            val song = roomViewModel.getSongByTitle(music.title ?: "")
-                            isFavourite.value = song != null
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            itemsIndexed(shuffledList) { _, music ->
+
+                val isCurrentSongInFavourite = remember(favouriteMusicList.value) {
+                    mutableStateOf(favouriteMusicList.value.any { it.title == music.title })
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 5.dp)
+                        .clickable {
+                            mediaUri.value = music.path
+                            mediaTitle.value = music.title
+                            sendCommandToService(
+                                MusicServiceAction.PLAY.action,
+                                uri = music.path.toUri(),
+                            )
                         }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp)
-                            .clickable {
-                                mediaUri.value = music.path
-                                mediaTitle.value = music.title
-                                sendCommandToService(
-                                    MusicServiceAction.PLAY.action,
-                                    uri = music.path.toUri(),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .height(55.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(Color(0xFF504f54))
+                        ) {
+                            Row(
+                                Modifier.fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.musicicon),
+                                    contentDescription = null,
+                                    tint = Color(0xFF606062),
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .padding(4.dp)
                                 )
                             }
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Card(
-                                modifier = Modifier
-                                    .width(50.dp)
-                                    .height(55.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(Color(0xFF504f54))
-                            ) {
-                                Row(
-                                    Modifier.fillMaxSize(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.musicicon),
-                                        contentDescription = null,
-                                        tint = Color(0xFF606062),
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .padding(4.dp)
-                                    )
-                                }
-                            }
-
-                            Text(
-                                text = music.title ?: "Unknown Title",
-                                color = Color.White,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = 16.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .padding(start = 12.dp, end = 12.dp)
-                                    .weight(1f)
-                            )
-
-                            Icon(
-                                imageVector = Icons.Default.MoreHoriz,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.padding(top = 3.dp, start = 2.dp)
-                            )
                         }
+
+                        Text(
+                            text = music.title ?: "Unknown Title",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 16.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(start = 12.dp, end = 12.dp)
+                                .weight(1f)
+                        )
+
+                        Icon(
+                            imageVector = Icons.Default.MoreHoriz,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.padding(top = 3.dp, start = 2.dp)
+                        )
                     }
-                }
-            }
-
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(onClick = {
-                    sendCommandToService(MusicServiceAction.BACKWARD.action)
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.FastRewind,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-
-                IconButton(onClick = {
-                        sendCommandToService(MusicServiceAction.PLAY.action)
-                }) {
-                    Icon(
-                        if (Utils.isPlaying.value) Icons.Default.PlayArrow else Icons.Default.Pause,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-
-                IconButton(onClick = {
-                    sendCommandToService(MusicServiceAction.FORWARD.action)
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.FastForward,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
-                    )
                 }
             }
         }
 
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            IconButton(onClick = {
+                sendCommandToService(MusicServiceAction.BACKWARD.action)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.FastRewind,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            IconButton(onClick = {
+                sendCommandToService(MusicServiceAction.PLAY.action)
+            }) {
+                Icon(
+                    if (Utils.isPlaying.value) Icons.Default.PlayArrow else Icons.Default.Pause,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            IconButton(onClick = {
+                sendCommandToService(MusicServiceAction.FORWARD.action)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.FastForward,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+        }
     }
+
 }
+
+
 
 
 enum class MusicServiceAction(val action: String) {

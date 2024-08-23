@@ -88,7 +88,7 @@ fun MainHomeScreen(
             },
                 navigationIcon = {
                     Image(
-                        painter = painterResource(id = R.drawable.playm),
+                        painter = painterResource(id = R.drawable.play),
                         contentDescription = null,
                         modifier = Modifier.size(34.dp)
                     )

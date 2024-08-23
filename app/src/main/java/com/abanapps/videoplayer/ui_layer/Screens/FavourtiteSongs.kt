@@ -1,9 +1,12 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,20 +36,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.abanapps.videoplayer.R
+import com.abanapps.videoplayer.data_layer.service.MusicService
 import com.abanapps.videoplayer.data_layer.viewModel.RoomViewModel
+import com.abanapps.videoplayer.ui_layer.Navigation.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavouriteSongsScreen(navHostController: NavHostController, roomViewModel: RoomViewModel) {
 
     val allFavouriteSongs by roomViewModel.allFavouriteSongs.collectAsState(initial = emptyList())
+    val context = LocalContext.current
 
     Scaffold(
 
@@ -104,6 +113,8 @@ fun FavouriteSongsScreen(navHostController: NavHostController, roomViewModel: Ro
                     fontSize = 34.sp
                 )
 
+                Spacer(modifier = Modifier.height(10.dp))
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -113,7 +124,29 @@ fun FavouriteSongsScreen(navHostController: NavHostController, roomViewModel: Ro
                     items(allFavouriteSongs) { songs ->
 
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp)
+                                .clickable {
+                                    val intent =
+                                        Intent(context, MusicService::class.java).apply {
+                                            putExtra(
+                                                "music_uri",
+                                                songs.path
+                                                    .toUri()
+                                                    .toString()
+                                            )
+                                            putExtra("music_title", songs.title.toString())
+                                        }
+                                    ContextCompat.startForegroundService(context, intent)
+
+                                    navHostController.navigate(
+                                        Routes.MusicPlayerScreen(
+                                            musicUri = songs.path,
+                                            title = songs.title!!
+                                        )
+                                    )
+                                },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Card(

@@ -1,6 +1,7 @@
 package com.abanapps.videoplayer.ui_layer.Screens
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,6 +75,13 @@ fun MusicScreen(
 
     val allMusic = viewModel.musicList.collectAsState()
     val isLoading = viewModel.showUi.collectAsState()
+    val isShuffledEnabled = remember {
+        mutableStateOf(false)
+    }
+
+    val shuffledList = remember(allMusic.value, isShuffledEnabled.value) {
+        if (isShuffledEnabled.value) allMusic.value.shuffled() else allMusic.value
+    }
 
     val context = LocalContext.current
 
@@ -199,7 +209,38 @@ fun MusicScreen(
                     ) {
 
                         Button(
-                            onClick = { },
+                            onClick = {
+
+                                if (shuffledList[0].title!!.isNotEmpty() && shuffledList[0].path.isNotEmpty()) {
+                                    val intent =
+                                        Intent(context, MusicService::class.java).apply {
+                                            putExtra(
+                                                "music_uri",
+                                                shuffledList[0].path
+                                                    .toUri()
+                                                    .toString()
+                                            )
+                                            putExtra(
+                                                "music_title",
+                                                shuffledList[0].title.toString()
+                                            )
+                                        }
+
+                                    ContextCompat.startForegroundService(context, intent)
+
+                                    navHostController.navigate(
+                                        Routes.MusicPlayerScreen(
+                                            musicUri = shuffledList[0].path,
+                                            title = shuffledList[0].title.toString()
+                                        )
+                                    )
+                                } else {
+                                    Toast.makeText(context, "No Music Found", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+
+
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(end = 7.dp),
@@ -219,7 +260,7 @@ fun MusicScreen(
 
                         Button(
                             onClick = {
-                                allMusic.value.shuffled()
+                                isShuffledEnabled.value = !isShuffledEnabled.value
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -244,18 +285,22 @@ fun MusicScreen(
 
                     LazyColumn {
 
-                        items(allMusic.value) {
+                        items(shuffledList) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 5.dp)
                                     .clickable {
-                                        val intent = Intent(context, MusicService::class.java).apply {
-                                            putExtra("music_uri", it.path.toUri().toString())
-                                            putExtra("music_title", it.title.toString())
-                                        }
-
-                                        // Start the service
+                                        val intent =
+                                            Intent(context, MusicService::class.java).apply {
+                                                putExtra(
+                                                    "music_uri",
+                                                    it.path
+                                                        .toUri()
+                                                        .toString()
+                                                )
+                                                putExtra("music_title", it.title.toString())
+                                            }
                                         ContextCompat.startForegroundService(context, intent)
 
                                         navHostController.navigate(
