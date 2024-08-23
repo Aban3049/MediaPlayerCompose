@@ -86,12 +86,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation (libs.androidx.material.icons.extended)
-    implementation("androidx.media3:media3-session:1.4.0")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
-    ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
 }
 
